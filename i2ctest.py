@@ -12,7 +12,7 @@ import time
 i2cch = 1 # channel number, e.g 0,1,2,3 means i2c-0, i2c-1, i2c-2, i2c-3.
 devaddr = 0x22 # i2c device address, you can use "i2cdete -r 1" to find it.
 testcount = 256	# write or read count for test.
-
+step = 1 # step
 bus = smbus.SMBus(i2cch)
 
 def help():
@@ -21,13 +21,18 @@ def help():
 	print '\t i2cch: i2c bus channel number, default %d'%i2cch
 	print '\t devaddr: i2c device address to test, default %d'%devaddr
 	print '\t testcount: write or read count for test, default %d'%testcount
-	
+	print '\t step: write or read by one address, default %d'%step
 
 def test_write():
 	stm = time.time()
-	for i in range(testcount):
+	if step>1:
+		data = range(step)
+	for i in range(0, testcount, step):
 		n = i%256
-		bus.write_byte_data(devaddr, n, n)
+		if step==1:
+			bus.write_byte_data(devaddr, n, n)
+		else:
+			bus.write_i2c_block_data(devaddr, n, data)
 	etm = time.time()
 	tms = int((etm-stm)*1000)
 	print 'write:\n\tcount:%d byte\n\ttime:%dms\n\tspeed:%d byte/s\n'%(testcount, tms, 
@@ -36,12 +41,16 @@ testcount*1000/tms)
 def test_read():
 	stm = time.time()
 	errct = 0
-	for i in range(testcount):
+	if step>1:
+		data = range(step)
+	for i in range(0, testcount, step):
 		n = i%256
-		m = bus.read_byte_data(devaddr, n)
+		if step==1:
+			m = bus.read_byte_data(devaddr, n)
+		else:
+			m = bus.read_i2c_block_data(devaddr, n, step)[0]
 		if n != m:
-			# read fail
-			errct = errct + 1
+			errct = errct +1
 	etm = time.time()
 	tms = int((etm-stm)*1000)
 	print 'read:\n\tcount:%d byte\n\ttime:%dms\n\tspeed:%d byte/s\n'%(testcount, tms,
@@ -53,16 +62,22 @@ if __name__ == '__main__':
 		help()
 		exit(0)
 	else:
-		if len(sys.argv) == 4:
-			argv = sys.argv
-			try:
+		argv = sys.argv
+		argc = len(argv)
+		try:
+			if argc > 1:
 				i2cch = eval(argv[1])
+			if argc > 2:
 				devaddr = eval(argv[2])
+			if argc > 3:
 				testcount = eval(argv[3])
-				print 'i2cch:%s devaddr:%s testcount:%s'%tuple(argv[1:])
-			except:
-				help()
-				exit(1)
+			if argc > 4:
+				step = eval(argv[4])
+			
+		except:
+			print 'errot args'
+			help()
+			exit(1)
 		test_write()
 		test_read()
 
