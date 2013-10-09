@@ -17,7 +17,7 @@ only a code trunk
 > you can user 'i2cdete -r ?' to scan x I2C bus.
 > after you know the I2C bus and I2C address.
 > you can test it like follow:
-> >python i2ctest.py 1 0x22 1024 32
+<br/><code>python i2ctest.py 1 0x22 1024 32</code><br/>
 
 
 #### C Language Can Bus Test
@@ -25,13 +25,13 @@ only a code trunk
 ###### use usage:
 > before test, you may ready the can bus.
 > the follow is set can0 bus to bitrate 250kbps
-> >bash readycan.sh 250000
+<br/><code>bash readycan.sh 250000</code><br/>
 > then test can0 receive performance:
-> >./cantraf
+<br/><code>./cantraf</code><br/>
 > after BeagleBone Black is ready to test, you can device( a nother can bus device)
 > can send data to BeagleBone Black( wire link is necessary).
 > 
 > of course, you can test send ( or transmition) performance:
-> >./cantraf 1024
+<br/><code>./cantraf 1024</code>
 > the, BeagleBone Black will send 1024 bytes data to you another can bus device.
 >
